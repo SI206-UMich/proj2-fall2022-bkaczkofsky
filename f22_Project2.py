@@ -206,6 +206,15 @@ def check_policy_numbers(data):
     ]
 
     """
+    bad_list = []
+    pattern = r'(20\d{2}-00\d{4}STR)|(STR-000\d{4})'
+    for listing in data:
+        if listing[3] != "Exempt" and listing[3] != "Pending":
+            policy_nums = re.findall(pattern, listing[3])
+            if len(policy_nums) == 0:
+                bad_list.append(listing[2])
+
+    return bad_list
     pass
 
 
@@ -323,9 +332,9 @@ class TestCases(unittest.TestCase):
         # check that the return value is a list
         self.assertEqual(type(invalid_listings), list)
         # check that there is exactly one element in the string
-
+        self.assertEqual(len(invalid_listings), 1)
         # check that the element in the list is a string
-
+        self.assertEqual(type(invalid_listings[0]), str)
         # check that the first element in the list is '16204265'
         self.assertEqual(invalid_listings[0], '16204265')
         pass
@@ -337,7 +346,7 @@ if __name__ == '__main__':
     # print(results)
     # listing_info = get_listing_information('51106622')
     # print(listing_info)
-    # database = get_detailed_listing_database("html_files/mission_district_search_results.html")
-    # write_csv(database, "airbnb_dataset.csv")
-    # check_policy_numbers(database)
+    database = get_detailed_listing_database("html_files/mission_district_search_results.html")
+    write_csv(database, "airbnb_dataset.csv")
+    check_policy_numbers(database)
     unittest.main(verbosity=2)
