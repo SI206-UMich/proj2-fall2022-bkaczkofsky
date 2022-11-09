@@ -33,7 +33,7 @@ def get_listings_from_search_results(html_file):
     with open(html_file, "r") as fp:
         soup = BeautifulSoup(fp.read(), 'html.parser')
         tuple_list = []
-        title_list = soup.find_all(class_ = 't1jojoys dir dir-ltr')
+        title_list = soup.find_all(class_ = 't1jojoys')
         count = 0
         for title in title_list:
             title_list[count] = title.text
@@ -46,14 +46,18 @@ def get_listings_from_search_results(html_file):
             cost_list[count] = int(new_cost[1:])
             count += 1
         
-        id_list = soup.find_all(class_ = 'rfexzly dir dir-ltr')
-        count = 0
-        # for id in id_list:
-        #     id_list[count] = id.href
-        #     count += 1
+        ids = soup.find_all(class_ = 'c14whb16 dir dir-ltr')
+        pattern = r'\/rooms\/\D*\/*(\d+)?'
+        id_list = []
+        for link in ids:
+            item = link.find(class_ = 'rfexzly dir dir-ltr')
+            new_item = item.get('href')
+            id_list.append(re.findall(pattern, new_item)[0])
+        
         for i in range(0, 20):
-            tuple_list.append((title_list[i], cost_list[i]))
-        print(tuple_list)
+            tuple_list.append((title_list[i], cost_list[i], id_list[i]))
+    
+    return tuple_list
         
     pass
 
@@ -85,7 +89,7 @@ def get_listing_information(listing_id):
     url = "html_files/listing_" + listing_id + ".html"
     with open(url, "r") as fp:
         soup = BeautifulSoup(fp.read(), 'html.parser')
-        policy_num = soup.find_all(class_ = 'll4r2nl dir dir-ltr')
+        policy_num = soup.find_all('span', class_ = 'll4r2nl')
         print(policy_num)
 
 
@@ -187,22 +191,24 @@ def extra_credit(listing_id):
     pass
 
 
-# class TestCases(unittest.TestCase):
+class TestCases(unittest.TestCase):
 
-#     def test_get_listings_from_search_results(self):
-#         # call get_listings_from_search_results("html_files/mission_district_search_results.html")
-#         # and save to a local variable
-#         listings = get_listings_from_search_results("html_files/mission_district_search_results.html")
-#         # check that the number of listings extracted is correct (20 listings)
-#         self.assertEqual(len(listings), 20)
-#         # check that the variable you saved after calling the function is a list
-#         self.assertEqual(type(listings), list)
-#         # check that each item in the list is a tuple
-
-#         # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
-
-#         # check that the last title is correct (open the search results html and find it)
-#         pass
+    def test_get_listings_from_search_results(self):
+        # call get_listings_from_search_results("html_files/mission_district_search_results.html")
+        # and save to a local variable
+        listings = get_listings_from_search_results("html_files/mission_district_search_results.html")
+        # check that the number of listings extracted is correct (20 listings)
+        self.assertEqual(len(listings), 20)
+        # check that the variable you saved after calling the function is a list
+        self.assertEqual(type(listings), list)
+        # check that each item in the list is a tuple
+        for item in listings:
+            self.assertEqual(type(item), tuple)
+        # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
+        self.assertEqual(listings[0], ('Loft in Mission District', 210, '1944564'))
+        # check that the last title is correct (open the search results html and find it)
+        self.assertEqual(listings[-1], ('Guest suite in Mission District', 238, '32871760'))
+        pass
 
     # def test_get_listing_information(self):
     #     html_list = ["1623609",
@@ -293,8 +299,8 @@ if __name__ == '__main__':
     # <variable> = <functionName(<parameter>,...)>
     # results = get_listings_from_search_results("html_files/mission_district_search_results.html")
     # print(results)
-    listing_info = get_listing_information('1944564')
-    print(listing_info)
+    # listing_info = get_listing_information('1944564')
+    # print(listing_info)
     # database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     # write_csv(database, "airbnb_dataset.csv")
     # check_policy_numbers(database)
